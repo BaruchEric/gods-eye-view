@@ -4458,7 +4458,7 @@ function cctvProxy() {
 
   /** Fetch a Google Street View static image as a fallback frame. Requires GOOGLE_MAPS_API_KEY. */
   const streetViewFallback = async ({ lat, lon, heading, fov, pitch }) => {
-    const streetViewKey = process.env.GOOGLE_MAPS_API_KEY;
+    const streetViewKey = googleServerKey();
     if (!streetViewKey || !Number.isFinite(lat) || !Number.isFinite(lon)) return null;
     try {
       const sv = new URL('https://maps.googleapis.com/maps/api/streetview');
@@ -5293,7 +5293,7 @@ function googlePlacesContextProxy() {
         return;
       }
 
-      const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+      const apiKey = googleServerKey();
       if (!apiKey) {
         res.statusCode = 503;
         res.setHeader('Content-Type', 'application/json');
@@ -5407,7 +5407,7 @@ function googlePlacesContextProxy() {
         return;
       }
 
-      const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+      const apiKey = googleServerKey();
       if (!apiKey) {
         res.statusCode = 503;
         res.setHeader('Content-Type', 'application/json');
@@ -7324,6 +7324,30 @@ function normalizeAisTimestamp(value) {
 }
 
 /**
+ * Server-side Google calls (Places, Street View) use GOOGLE_PLACES_API_KEY when
+ * set, so the browser key baked into the bundle can stay HTTP-referrer
+ * restricted (referrer-restricted keys reject requests from a server).
+ * Falls back to GOOGLE_MAPS_API_KEY for single-key setups.
+ */
+function googleServerKey() {
+  return process.env.GOOGLE_PLACES_API_KEY || process.env.GOOGLE_MAPS_API_KEY;
+}
+
+/**
+ * Production parity for `vite preview`: every /api proxy the dev server mounts
+ * must also be mounted on the preview server, since that is what serves dist/
+ * in a container. Plugins that only registered configureServer get the same
+ * installer as configurePreviewServer.
+ */
+function withPreviewParity(plugins) {
+  return plugins.map((plugin) =>
+    plugin && plugin.configureServer && !plugin.configurePreviewServer
+      ? { ...plugin, configurePreviewServer: plugin.configureServer }
+      : plugin,
+  );
+}
+
+/**
  * Main Vite configuration factory.
  *
  * Loads .env files via Vite's loadEnv, registers Cesium + local proxy
@@ -7338,8 +7362,9 @@ export default defineConfig(({ mode }) => {
     if (process.env[key] === undefined) process.env[key] = val;
   }
   const env = { ...process.env };
+  const allowAnyHost = env.HOST === '0.0.0.0' || env.HOST === '::';
   return {
-    plugins: [
+    plugins: withPreviewParity([
       cesium(),
       openSkyProxy(),
       celestrakProxy(),
@@ -7360,14 +7385,19 @@ export default defineConfig(({ mode }) => {
       trackBackfillProxies(),
       openAiRealtimeProxy(),
       googlePlacesContextProxy(),
-    ],
+    ]),
     server: {
       host: env.HOST || 'localhost',
       port: parseInt(env.PORT, 10) || 5173,
       // When binding to all interfaces, allow any host; otherwise restrict to local names
-      allowedHosts: (env.HOST === '0.0.0.0' || env.HOST === '::')
-        ? true
-        : ['localhost', '127.0.0.1', '.local'],
+      allowedHosts: allowAnyHost ? true : ['localhost', '127.0.0.1', '.local'],
+    },
+    // `vite preview` serves dist/ with the same proxies (see withPreviewParity);
+    // it is the production entry point in the container.
+    preview: {
+      host: env.HOST || 'localhost',
+      port: parseInt(env.PREVIEW_PORT, 10) || 4173,
+      allowedHosts: allowAnyHost ? true : ['localhost', '127.0.0.1', '.local'],
     },
     // Expose selected API keys to the browser via import.meta.env.*
     define: {
