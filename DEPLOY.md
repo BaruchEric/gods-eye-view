@@ -42,6 +42,10 @@ rsync -az --delete --exclude node_modules --exclude dist --exclude .git --exclud
 ssh macmini-ts 'cd /opt/stacks/gev && docker compose up -d --build'
 ```
 
+`./cache` on the mini is bind-mounted to `/app/.gev-cache` so the proxy caches
+(terrain heights, TomTom, adsbdb) survive a recreate; the terrain upstream is
+slow enough that a cold cache alone produced 502s.
+
 The image build (`npm ci` + `vite build`) runs on the mini and takes a few
 minutes; `GOOGLE_MAPS_API_KEY` must be in `.env` before the build because it is
 a build arg.
