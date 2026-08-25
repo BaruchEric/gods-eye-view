@@ -1,7 +1,7 @@
 # gev.beric.ca app container. No Traefik labels on purpose: the public route
 # lives on beric-gate (homelab/services/beric-gate), which fronts this
 # container on the shared `web` network with the invite gate. Secrets come
-# from .env next to this file on the NAS (never committed).
+# from .env next to this file on the Mac mini (never committed).
 services:
   gev-app:
     build:
