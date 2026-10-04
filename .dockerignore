@@ -10,11 +10,11 @@ qa-shots
 output
 .gev-logs
 .gev-cache
+cache
 .DS_Store
 .gstack
 3d-models
 docs
-scripts
 tools
 tests
 Dockerfile

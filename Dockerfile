@@ -2,7 +2,7 @@
 # God's Eye View, production container for gev.beric.ca.
 # Stage 1 builds dist/ (the Google browser key is baked in by vite's define block).
 # Stage 2 runs `vite preview`, which serves dist/ and mounts every /api proxy
-# from vite.config.js (see withPreviewParity there).
+# from the standalone config and provider modules.
 
 FROM node:26-bookworm-slim AS build
 WORKDIR /app
@@ -21,6 +21,9 @@ ENV NODE_ENV=production HOST=0.0.0.0 PREVIEW_PORT=4173 TZ=America/Los_Angeles
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/package.json /app/vite.config.js /app/index.html /app/style.css ./
+COPY --from=build /app/build ./build
+COPY --from=build /app/server ./server
+COPY --from=build /app/scripts ./scripts
 COPY --from=build /app/src ./src
 COPY --from=build /app/config ./config
 COPY --from=build /app/public ./public

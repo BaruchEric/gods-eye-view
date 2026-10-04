@@ -1,13 +1,18 @@
 # Deploying this fork to gev.beric.ca
 
 This is Eric's fork of [bilawalsidhu/gods-eye-view](https://github.com/bilawalsidhu/gods-eye-view).
-Upstream is unchanged except for three things, all in `vite.config.js` and `.env.example`:
+The fork retains the Docker deployment and persistent proxy caches. Upstream
+now supplies preview-server API parity and a separate server-side Google key.
+The local compatibility changes are:
 
-- `withPreviewParity()` mounts every `/api` proxy on `vite preview` too, so the
-  built `dist/` can be served by the same config in a container.
-- `googleServerKey()` lets the server-side Google calls (Places, Street View) use
-  `GOOGLE_PLACES_API_KEY`, so the browser key stays HTTP-referrer restricted.
-- An explicit `preview` block (host, `PREVIEW_PORT`, allowedHosts).
+- `GOOGLE_PLACES_API_KEY` remains an alias for upstream's
+  `GOOGLE_MAPS_SERVER_API_KEY`; the upstream name takes precedence when both
+  are set, then the browser key is the fallback.
+- The standalone Vite config honors `HOST` and `PREVIEW_PORT` for preview.
+- Compose explicitly allows the `gev-app` and `gev.beric.ca` Host headers.
+  Binding to all interfaces retains upstream's Host-header checks.
+- The runtime image includes upstream's `build/`, `server/`, and `scripts/`
+  modules, which the Vite config and API providers now import.
 
 ## Where it runs
 
@@ -53,9 +58,10 @@ a build arg.
 ## Keeping up with upstream
 
 ```bash
-git remote add upstream https://github.com/bilawalsidhu/gods-eye-view.git
+# One-time setup if upstream is not already configured:
+# git remote add upstream https://github.com/bilawalsidhu/gods-eye-view.git
 git fetch upstream && git merge upstream/main
 ```
 
-The patches above are small and live at the bottom of `vite.config.js`; merge
-conflicts there are expected to be trivial.
+When merging, retain the deployment files and compatibility changes above
+alongside upstream's provider and security updates.
