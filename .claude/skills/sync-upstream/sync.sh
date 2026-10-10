@@ -94,7 +94,7 @@ cmd_deploy() {
   ssh "$HOST" bash -s <<'EOF'
 set -euo pipefail
 if docker image inspect gev-app:local >/dev/null 2>&1; then
-  tag="rollback-$(docker image inspect -f '{{.Created}}' gev-app:local | cut -c1-10 | tr -d -)"
+  tag="rollback-$(docker image inspect -f '{{.Created}}' gev-app:local | cut -c1-16 | tr -d ':-')"
   docker tag gev-app:local "gev-app:$tag"
   echo "tagged gev-app:$tag"
   # Keep only the newest rollback image.

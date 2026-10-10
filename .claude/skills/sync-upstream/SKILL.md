@@ -40,7 +40,7 @@ behind?"), run `status` only and report.
   bad conflict resolution. The log path is printed next to the failing gate.
   Two allocation microbenchmarks skip on Node 26; that is expected locally.
 - **Deploy unhealthy.** The script prints the last 30 log lines. Roll back with
-  `ssh macmini-ts 'cd /opt/stacks/gev && docker tag gev-app:rollback-<date> gev-app:local && docker compose up -d --no-build --force-recreate'`.
+  `ssh macmini-ts 'cd /opt/stacks/gev && docker tag gev-app:rollback-<stamp> gev-app:local && docker compose up -d --no-build --force-recreate'`.
   Each deploy keeps only the newest rollback image.
 
 ## Things that bit before
