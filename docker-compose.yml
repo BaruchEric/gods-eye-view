@@ -17,6 +17,8 @@ services:
       - HOST=0.0.0.0
       - PREVIEW_PORT=4173
       - GEV_ALLOWED_HOSTS=gev-app,gev.beric.ca
+      # beric-gate proxies every request; see server/providers/common/same-site.js.
+      - GEV_PUBLIC_ORIGIN=https://gev.beric.ca
       - TZ=America/Los_Angeles
     volumes:
       # Proxy caches (terrain heights, TomTom, adsbdb, ...). Keeping them on the

@@ -56,7 +56,17 @@ export function makeCostRateLimiter(envValue, defaultPerMin) {
  * NOT trust X-Forwarded-For (client-controlled; a rotating value would mint fresh
  * quota and grow the limiter map). This is a localhost dev proxy, so the socket
  * address is the real client.
+ *
+ * Fork (gev.beric.ca): behind beric-gate every request arrives from the gate's
+ * address, so all members would share one bucket. With GEV_PUBLIC_ORIGIN set,
+ * the key is the signed-in identity beric-gate writes to X-Gate-User (it
+ * overwrites any client value), which is bounded by the member list. The env
+ * check is inlined because several provider packages own this module but not
+ * same-site.js.
  */
-export function clientKey(req) {
+export function clientKey(req, env = process.env) {
+  const gateUser = String(req.headers?.['x-gate-user'] || '').trim();
+  if (gateUser && String(env.GEV_PUBLIC_ORIGIN || '').trim())
+    return `gate:${gateUser}`;
   return String(req.socket?.remoteAddress || 'local');
 }

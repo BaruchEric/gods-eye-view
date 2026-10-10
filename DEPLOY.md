@@ -11,6 +11,15 @@ The local compatibility changes are:
 - The standalone Vite config honors `HOST` and `PREVIEW_PORT` for preview.
 - Compose explicitly allows the `gev-app` and `gev.beric.ca` Host headers.
   Binding to all interfaces retains upstream's Host-header checks.
+- Compose sets `GEV_PUBLIC_ORIGIN=https://gev.beric.ca`. Upstream's same-site
+  gate refuses any request with proxy headers, and beric-gate adds them, so
+  voice, HUD summaries, Places and Mapillary all returned 403. With the
+  variable set, `server/providers/common/same-site.js` tolerates proxy headers
+  and requires the browser's Origin to equal that value. The credential panel
+  and `/mcp` still refuse proxied requests.
+  The same variable makes `server/providers/common/rate-limit.js` key the
+  per-client limits on beric-gate's `X-Gate-User` instead of the socket
+  address, which is the gate's for every request.
 - The runtime image includes upstream's `build/`, `server/`, and `scripts/`
   modules, which the Vite config and API providers now import.
 
