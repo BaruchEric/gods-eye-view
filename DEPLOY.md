@@ -16,7 +16,7 @@ The local compatibility changes are:
 
 ## Where it runs
 
-macmini-2018 (Ubuntu, Docker; ssh alias `macmini-ts`), stack `/opt/stacks/gev`
+macmini-2018 (Omarchy, Docker; ssh alias `macmini-ts`), stack `/opt/stacks/gev`
 (this repo rsynced there, `.env` added by hand). The container is `gev-app` on the
 mini's `web` network with no host port and no Traefik labels. The public hostname
 is a file-provider route in the NAS Traefik
@@ -43,13 +43,14 @@ email-invite gate, roles and the anonymous mode, then proxies to
 
 ```bash
 cd ~/dev/web-apps/gods-eye-view
-rsync -az --delete --exclude node_modules --exclude dist --exclude .git --exclude .env ./ macmini-ts:/opt/stacks/gev/
+rsync -az --delete --exclude node_modules --exclude dist --exclude .git --exclude .env --exclude /cache --exclude /.gev-cache ./ macmini-ts:/opt/stacks/gev/
 ssh macmini-ts 'cd /opt/stacks/gev && docker compose up -d --build'
 ```
 
 `./cache` on the mini is bind-mounted to `/app/.gev-cache` so the proxy caches
 (terrain heights, TomTom, adsbdb) survive a recreate; the terrain upstream is
-slow enough that a cold cache alone produced 502s.
+slow enough that a cold cache alone produced 502s. The rsync excludes `/cache`
+because the repo has no such folder, so `--delete` would otherwise wipe it.
 
 The image build (`npm ci` + `vite build`) runs on the mini and takes a few
 minutes; `GOOGLE_MAPS_API_KEY` must be in `.env` before the build because it is
