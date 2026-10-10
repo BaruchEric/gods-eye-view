@@ -34,7 +34,8 @@ behind?"), run `status` only and report.
 - **Exit 2 on merge.** Upstream conflicts with fork changes. Keep the fork
   compatibility changes listed in `DEPLOY.md` (Places key alias, preview
   `HOST`/`PREVIEW_PORT`, `GEV_ALLOWED_HOSTS`, `GEV_PUBLIC_ORIGIN` in
-  `server/providers/common/same-site.js`, the Dockerfile's runtime copies),
+  `server/providers/common/same-site.js`, the mic picker in
+  `src/voice/micPreference.js`, the Dockerfile's runtime copies),
   take upstream for everything else, commit, then run `gates`.
 - **Gates.** Upstream CI runs the same checks, so a failure usually means a
   bad conflict resolution. The log path is printed next to the failing gate.

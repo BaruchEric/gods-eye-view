@@ -1,3 +1,4 @@
+import { installMicPicker } from './micPreference.js';
 import { GevRealtimeController } from './realtimeController.js';
 
 /** Adapt the existing WebRTC implementation to the common voice session. */
@@ -28,6 +29,7 @@ export function createRealtimeSession({
           controller.tierHandler,
         );
       }
+      installMicPicker(controller.ui.root);
       controller.syncCostUi();
       controller.bindPushToTalkShortcut();
     },

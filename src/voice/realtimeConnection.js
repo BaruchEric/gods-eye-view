@@ -1,3 +1,5 @@
+import { preferredMicAudio, refreshMicPickers } from './micPreference.js';
+
 const DISCONNECT_GRACE_MS = 6000;
 
 function releaseStartResources({ localStream = null, localPc = null } = {}) {
@@ -116,13 +118,14 @@ export class RealtimeConnection {
         ratesRecognized: costState.ratesRecognized,
       });
       localStream = await navigator.mediaDevices.getUserMedia({
-        audio: {
+        audio: await preferredMicAudio({
           echoCancellation: true,
           noiseSuppression: true,
           autoGainControl: true,
           channelCount: 1,
-        },
+        }),
       });
+      refreshMicPickers();
       if (this.abandonStart(epoch, { localStream, localPc })) return;
       this.stream = localStream;
       this.setMicrophoneEnabled(

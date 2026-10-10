@@ -20,6 +20,10 @@ The local compatibility changes are:
   The same variable makes `server/providers/common/rate-limit.js` key the
   per-client limits on beric-gate's `X-Gate-User` instead of the socket
   address, which is the gate's for every request.
+- The voice dock has a microphone picker (`src/voice/micPreference.js`,
+  wired in `realtimeSession.js` and `realtimeConnection.js`, registered in
+  `scripts/package-boundaries.json`). Upstream takes Chrome's per-site mic,
+  which can be a different input than the one in use.
 - The runtime image includes upstream's `build/`, `server/`, and `scripts/`
   modules, which the Vite config and API providers now import.
 
