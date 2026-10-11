@@ -1,0 +1,10 @@
+[
+  {
+    "name": "sync-upstream",
+    "cmd": ".claude/skills/sync-upstream/sync.sh all"
+  },
+  {
+    "name": "sync-status",
+    "cmd": ".claude/skills/sync-upstream/sync.sh status"
+  }
+]
